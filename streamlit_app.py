@@ -50,7 +50,7 @@ def load_document(url):
 loaded_docs = []
 
 with ThreadPoolExecutor() as executor:
-  features = executor.submit[load_document, url) for url in urls]
+  features = [executor.submit(load_document, url) for url in urls]
   for future in as_completed(futures):
     docs, url = future.result()
     loaded_docs.extend(docs)
