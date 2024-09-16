@@ -13,8 +13,6 @@ from langchain.chains import create_retrieval_chain
 from langchain.document_loaders import WebBaseLoader
 import requests
 from bs4 import BeautifulSoup
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import pickle
 
 #Steamlite title
 st.title("Website Intelligence and Comparer")
@@ -22,7 +20,7 @@ st.title("Website Intelligence and Comparer")
 #LLM
 api_key = "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"
 
-llm = ChatGroq(groq_api_key = api_key, model_name = 'llama-3.1-70b-versatile', temperature = 0, top_p = 0.2)
+llm = ChatGroq(groq_api_key = api_key, model_name = 'llama3-8b-8192', temperature = 0.2, top_p = 0.2)
 
 #Embedding
 hf_embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
@@ -37,31 +35,15 @@ urls = ["https://www.hdfclife.com/term-insurance-plans",
 
 loaded_docs = []
 
-def load_document(url):
+for url in urls:
   try:
     st.spinner("Loading URL...")
     loader = WebBaseLoader(url)
-    return loader.load(), url
+    docs = loader.load()
+    loaded_docs.extend(docs)
+    #st.success("Successfully loaded content")
   except Exception as e:
     st.error("Error")
-    return [], url
-
-#Parallel doc loading
-
-def load_all_documents(urls):
-  loaded_docs = []
-  with ThreadPoolExecutor() as executor:
-    futures = [executor.submit(load_document, url) for url in urls]
-    for future in as_completed(futures):
-      try:
-        docs, url = future.result()
-        loaded_docs.extend(docs)
-        if docs:
-          st.write("Loaded successfully")
-      except Exception as e:
-        st.error("Error loading")
-  return loaded_docs
-
 
 st.write(f"Loaded urls: {len(urls)}")
 
@@ -81,12 +63,12 @@ Question: {input}""")
 
 #Text Splitting
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size = 3000,
-    chunk_overlap  = 200,
+    chunk_size = 1500,
+    chunk_overlap  = 100,
     length_function = len,
 )
 
-document_chunks = text_splitter.split_documents(loaded_docs)
+document_chunks = text_splitter.split_documents(docs)
 
 #Vector database storage
 vector_db = FAISS.from_documents(document_chunks, hf_embedding)
@@ -107,6 +89,9 @@ if query:
     #Create a retrieval chain
     retrieval_chain = create_retrieval_chain(retriever,document_chain)
 
+    response = retrieval_chain.invoke({"input": query})
+
+    st.write(response['answer'])
     response = retrieval_chain.invoke({"input": query})
 
     st.write(response['answer'])
