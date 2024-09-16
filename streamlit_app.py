@@ -35,7 +35,7 @@ urls = ["https://www.hdfclife.com/term-insurance-plans",
 
 loaded_docs = []
 
-for url in filtered_urls:
+for url in urls:
   try:
     st.spinner("Loading URL...")
     loader = WebBaseLoader(url)
