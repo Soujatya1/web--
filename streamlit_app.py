@@ -55,7 +55,7 @@ for sitemap_url in sitemap_urls:
       loader = WebBaseLoader(url)
       docs = loader.load()
       loaded_docs.extend(docs)
-      st.success("Successfully loaded content")
+      #st.success("Successfully loaded content")
     except Exception as e:
       st.error("Error")
 
