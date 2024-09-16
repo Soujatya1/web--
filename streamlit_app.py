@@ -15,7 +15,7 @@ import requests
 from bs4 import BeautifulSoup
 
 #Steamlite title
-st.title("Website Intel and Comparer")
+st.title("Website Intelligence and Comparer")
 
 #LLM
 api_key = "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"
@@ -25,9 +25,7 @@ llm = ChatGroq(groq_api_key = api_key, model_name = 'llama-3.1-70b-versatile', t
 #Embedding
 hf_embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
 
-sitemap_urls = ["https://www.hdfclife.com/sitemap.xml"]
-
-filter_urls = ["https://www.hdfclife.com/term-insurance-plans",
+urls = ["https://www.hdfclife.com/term-insurance-plans",
 "https://www.hdfclife.com/term-insurance-plans/click-2-protect-super",
 "https://www.hdfclife.com/term-insurance-plans/sanchay-legacy",
 "https://www.hdfclife.com/term-insurance-plans/click-2-protect-elite",
@@ -35,35 +33,19 @@ filter_urls = ["https://www.hdfclife.com/term-insurance-plans",
 "https://www.hdfclife.com/term-insurance-plans/quick-protect",
 "https://www.hdfclife.com/term-insurance-plans/saral-jeevan-bima"]
 
-all_urls = []
-filtered_urls = []
 loaded_docs = []
 
-for sitemap_url in sitemap_urls:
-  response = requests.get(sitemap_url)
-  sitemap_content = response.content
+for url in filtered_urls:
+  try:
+    st.spinner("Loading URL...")
+    loader = WebBaseLoader(url)
+    docs = loader.load()
+    loaded_docs.extend(docs)
+    #st.success("Successfully loaded content")
+  except Exception as e:
+    st.error("Error")
 
-  #Parse sitemap URL
-  soup = BeautifulSoup(sitemap_content, 'xml')
-  urls = [loc.text for loc in soup.find_all('loc')]
-
-  #Filter URLs
-  selected_urls = [url for url in urls if any(filter in url for filter in filter_urls)]
-
-  #Append URLs to the main list
-  filtered_urls.extend(selected_urls)
-
-  for url in filtered_urls:
-    try:
-      print(f"Loading URL: {url}")
-      loader = WebBaseLoader(url)
-      docs = loader.load()
-      loaded_docs.extend(docs)
-      #st.success("Successfully loaded content")
-    except Exception as e:
-      st.error("Error")
-
-st.write(f"Loaded urls: {len(filtered_urls)}")
+st.write(f"Loaded urls: {len(urls)}")
 
 #Craft ChatPrompt Template
 prompt = ChatPromptTemplate.from_template(
