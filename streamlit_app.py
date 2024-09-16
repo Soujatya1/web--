@@ -91,18 +91,6 @@ document_chunks = text_splitter.split_documents(loaded_docs)
 #Vector database storage
 vector_db = FAISS.from_documents(document_chunks, hf_embedding)
 
-#Save embeddings for future use
-with open("embeddings.pkl", "wb") as f:
-          pickle.dump(vector_db, f)
-
-#Load embeddings if available
-
-try:
-  with open("embeddings.pkl", "rb") as f:
-    vector_db = pickle.load()
-except:
-  pass
-
 #Streamlit user query
 query = st.text_input("Enter your question")
 
