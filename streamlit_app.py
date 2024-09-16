@@ -48,14 +48,14 @@ def load_document(url):
 
 #Parallel doc loading
 loaded_docs = []
-
+futures = []
 with ThreadPoolExecutor() as executor:
   features = [executor.submit(load_document, url) for url in urls]
-  for future in as_completed(futures):
-    docs, url = future.result()
-    loaded_docs.extend(docs)
-    if docs:
-      st.write("Loaded successfully")
+    for future in as_completed(futures):
+      docs, url = future.result()
+      loaded_docs.extend(docs)
+      if docs:
+        st.write("Loaded successfully")
 
 st.write(f"Loaded urls: {len(urls)}")
 
