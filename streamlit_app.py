@@ -60,7 +60,7 @@ def load_all_documents(urls):
           st.write("Loaded successfully")
       except Exception as e:
         st.error("Error loading")
-return loaded_docs
+  return loaded_docs
 
 
 st.write(f"Loaded urls: {len(urls)}")
