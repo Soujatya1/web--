@@ -52,14 +52,14 @@ def load_all_documents(urls):
   loaded_docs = []
   with ThreadPoolExecutor() as executor:
     futures = [executor.submit(load_document, url) for url in urls]
-      for future in as_completed(futures):
-      try:
-        docs, url = future.result()
-          loaded_docs.extend(docs)
-          if docs:
-            st.write("Loaded successfully")
-        except Exception as e:
-          st.error("Error loading")
+    for future in as_completed(futures):
+    try:
+      docs, url = future.result()
+      loaded_docs.extend(docs)
+        if docs:
+          st.write("Loaded successfully")
+    except Exception as e:
+        st.error("Error loading")
 return loaded_docs
 
 
