@@ -13,6 +13,8 @@ from langchain.chains import create_retrieval_chain
 from langchain.document_loaders import WebBaseLoader
 import requests
 from bs4 import BeautifulSoup
+from concurrent.features import ThreadPoolExecutor, as_completed
+import pickle
 
 #Steamlite title
 st.title("Website Intelligence and Comparer")
@@ -20,7 +22,7 @@ st.title("Website Intelligence and Comparer")
 #LLM
 api_key = "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"
 
-llm = ChatGroq(groq_api_key = api_key, model_name = 'llama-3.1-70b-versatile', temperature = 0.2, top_p = 0.2)
+llm = ChatGroq(groq_api_key = api_key, model_name = 'llama-3.1-70b-versatile', temperature = 0, top_p = 0.2)
 
 #Embedding
 hf_embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
@@ -35,15 +37,25 @@ urls = ["https://www.hdfclife.com/term-insurance-plans",
 
 loaded_docs = []
 
-for url in urls:
+def load_document(url):
   try:
     st.spinner("Loading URL...")
     loader = WebBaseLoader(url)
-    docs = loader.load()
-    loaded_docs.extend(docs)
-    #st.success("Successfully loaded content")
+    return loader.load(), url
   except Exception as e:
     st.error("Error")
+    return [], url
+
+#Parallel doc loading
+loaded_docs = []
+
+with ThreadPoolExecutor() as executor:
+  features = executor.submit[load_document, url) for url in urls]
+  for future in as_completed(futures):
+    docs, url = future.result()
+    loaded_docs.extend(docs)
+    if docs:
+      st.write("Loaded successfully")
 
 st.write(f"Loaded urls: {len(urls)}")
 
@@ -63,8 +75,8 @@ Question: {input}""")
 
 #Text Splitting
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size = 1500,
-    chunk_overlap  = 100,
+    chunk_size = 3000,
+    chunk_overlap  = 200,
     length_function = len,
 )
 
@@ -72,6 +84,18 @@ document_chunks = text_splitter.split_documents(docs)
 
 #Vector database storage
 vector_db = FAISS.from_documents(document_chunks, hf_embedding)
+
+#Save embeddings for future use
+with open("embeddings.pkl", "wb") as f:
+          pickle.dump(vector_db, f)
+
+#Load embeddings if available
+
+try:
+  with open("embeddings.pkl, "rb") as f:
+    vector_db = pickle.load()
+except:
+  pass
 
 #Streamlit user query
 query = st.text_input("Enter your question")
