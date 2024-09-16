@@ -92,7 +92,7 @@ with open("embeddings.pkl", "wb") as f:
 #Load embeddings if available
 
 try:
-  with open("embeddings.pkl, "rb") as f:
+  with open("embeddings.pkl", "rb") as f:
     vector_db = pickle.load()
 except:
   pass
