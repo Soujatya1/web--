@@ -29,7 +29,7 @@ sitemap_urls = ["https://www.bajajallianzlife.com/sitemap.xml",
                 "https://www.hdfclife.com/sitemap.xml", 
                 "https://www.tataaia.com/sitemap.xml"]
 
-filter_urls = ["saral", "pension"]
+filter_urls = [""]
 
 all_urls = []
 filtered_urls = []
