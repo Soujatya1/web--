@@ -80,7 +80,7 @@ text_splitter = RecursiveCharacterTextSplitter(
     length_function = len,
 )
 
-document_chunks = text_splitter.split_documents(docs)
+document_chunks = text_splitter.split_documents(loaded_docs)
 
 #Vector database storage
 vector_db = FAISS.from_documents(document_chunks, hf_embedding)
