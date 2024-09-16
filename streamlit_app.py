@@ -27,7 +27,13 @@ hf_embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet
 
 sitemap_urls = ["https://www.hdfclife.com/sitemap.xml"]
 
-filter_urls = ["zero"]
+filter_urls = ["https://www.hdfclife.com/term-insurance-plans",
+"https://www.hdfclife.com/term-insurance-plans/click-2-protect-super",
+"https://www.hdfclife.com/term-insurance-plans/sanchay-legacy",
+"https://www.hdfclife.com/term-insurance-plans/click-2-protect-elite",
+"https://www.hdfclife.com/term-insurance-plans/term-with-return-of-premium-plan",
+"https://www.hdfclife.com/term-insurance-plans/quick-protect",
+"https://www.hdfclife.com/term-insurance-plans/saral-jeevan-bima"]
 
 all_urls = []
 filtered_urls = []
