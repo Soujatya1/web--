@@ -47,15 +47,21 @@ def load_document(url):
     return [], url
 
 #Parallel doc loading
-loaded_docs = []
-futures = []
-with ThreadPoolExecutor() as executor:
-  features = [executor.submit(load_document, url) for url in urls]
-    for future in as_completed(futures):
-      docs, url = future.result()
-      loaded_docs.extend(docs)
-      if docs:
-        st.write("Loaded successfully")
+
+def load_all_documents(urls):
+  loaded_docs = []
+  with ThreadPoolExecutor() as executor:
+    futures = [executor.submit(load_document, url) for url in urls]
+      for future in as_completed(futures):
+        try:
+          docs, url = future.result()
+          loaded_docs.extend(docs)
+          if docs:
+            st.write("Loaded successfully")
+        except Exception as e:
+          st.error("Error loading")
+return loaded_docs
+
 
 st.write(f"Loaded urls: {len(urls)}")
 
