@@ -25,7 +25,9 @@ llm = ChatGroq(groq_api_key = api_key, model_name = 'llama-3.1-70b-versatile', t
 #Embedding
 hf_embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
 
-sitemap_urls = [https://www.bajajallianzlife.com/sitemap.xml, https://www.hdfclife.com/sitemap.xml, https://www.tataaia.com/sitemap.xml]
+sitemap_urls = ["https://www.bajajallianzlife.com/sitemap.xml", 
+                "https://www.hdfclife.com/sitemap.xml", 
+                "https://www.tataaia.com/sitemap.xml"]
 
 filter_urls = ["saral", "pension"]
 
