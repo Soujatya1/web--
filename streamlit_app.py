@@ -40,7 +40,7 @@ for sitemap_url in sitemap_urls:
   sitemap_content = response.content
 
   #Parse sitemap URL
-  soup = BeautifulSoup(sitemap_content, 'lxml')
+  soup = BeautifulSoup(sitemap_content, 'xml')
   urls = [loc.text for loc in soup.find_all('loc')]
 
   #Filter URLs
