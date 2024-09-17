@@ -67,12 +67,12 @@ def load_documents():
         loader = WebBaseLoader(url)
         docs.extend(loader.load())
         #st.success(f"Successfully loaded content from: {url}")
-        st.success(f"Successfully loaded content from: {len(filtered_urls)} URL(s)")
+        
       except Exception as e:
         st.error("Failed to load content")
   st.session_state.docs = docs
   st.session_state.docs_loaded = True
-  
+  st.success(f"Successfully loaded content from: {len(filtered_urls)} URL(s)")
 #Load the URLs when user clicks a button
 if "docs_loaded" not in st.session_state:
   st.session_state.docs_loaded = False
