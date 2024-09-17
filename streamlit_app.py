@@ -57,7 +57,7 @@ def fetch_documents(sitemap_urls, filter_urls):
   #Append URLs to the main list
   #filtered_urls.extend(selected_urls)
 
-  for url in filtered_urls:
+  for url in selected_urls:
     try:
       #st.write(f"Loading URL: {url}")
       loader = WebBaseLoader(url)
