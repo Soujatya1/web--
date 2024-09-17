@@ -1,79 +1,140 @@
 import streamlit as st
-import os
+from langchain.document_loaders.sitemap import SitemapLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.chains import RetrievalQA
 from langchain_groq import ChatGroq
-from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
-from bs4 import BeautifulSoup
+from langchain.embeddings import HuggingFaceEmbeddings
+import sentence_transformers
+from langchain_community.vectorstores import FAISS
+from langchain.chains import RetrievalQA
+from langchain_core.prompts import ChatPromptTemplate
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.chains import create_retrieval_chain
+from langchain.document_loaders import WebBaseLoader
 import requests
-import faiss
-import numpy as np
+from bs4 import BeautifulSoup
+
+#Setup Streamlit page
+st.title("Insurance Policy Intelligence and Comparison Chatbot")
 
 #LLM
 api_key = "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"
+if "llm" not in st.session_state:
+  st.session_state.llm = ChatGroq(groq_api_key = api_key, model_name = 'llama-3.1-70b-versatile', temperature = 0.2, top_p = 0.2)
 
-llm = ChatGroq(groq_api_key = api_key, model_name = 'llama3-8b-8192', temperature = 0.2, top_p = 0.2)
+#Embedding
+if "hf_embedding" not in st.session_state:
+  st.session_state.hf_embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
 
-# Define a prompt template for LangChain
-prompt_template = """Given the following information extracted from websites:
+#Placeholder for user input: Web URLs
+st.write("Enter the sitemap URLs:")
+sitemap_urls_input = st.text_area("Sitemap URLs", height = 100, placeholder = "Enter URLs like https://example.com/sitemap.xml")
 
-{website_data}
+#Placeholder for user input: keywords to filter
+st.write("Enter keywords to filter URLs:")
+filter_urls_input = st.text_input("Keywords", placeholder = "Enter keywords like 'saral,pension'")
 
-Can you summarize and compare the key details, especially the differences in the insurance policies offered by various companies?"""
+#Parse user input
+sitemap_urls = [url.strip() for url in sitemap_urls_input.split("\n") if url.strip()]
+filter_urls = [keyword.strip() for keyword in filter_urls_input.split(",") if keyword.strip()]
 
-prompt = PromptTemplate(template=prompt_template, input_variables=["website_data"])
-comparison_chain = LLMChain(llm=llm, prompt=prompt)
-
-# Function to scrape website content (text extraction)
-def scrape_website(url):
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, "html.parser")
+#URL scraping logic
+def load_documents():
+  if not sitemap_urls or not filter_urls:
+    st.error("Error")
+    return
     
-    # Extract text from website's relevant sections
-    paragraphs = soup.find_all('p')
-    text = "\n".join([para.get_text() for para in paragraphs])
-    
-    return text
+  filtered_urls = []
+  for sitemap_url in sitemap_urls:
+    try:
+      response = requests.get(sitemap_url)
+      sitemap_content = response.content
 
-# Function to embed the website content using FAISS
-def embed_website_content(text):
-    vectors = np.array([llm.embed(text_chunk) for text_chunk in text.split("\n")])
-    index = faiss.IndexFlatL2(vectors.shape[1])
-    index.add(vectors)
-    
-    return index, vectors
+      #Parse sitemap URL
+      soup = BeautifulSoup(sitemap_content, 'lxml')
+      urls = [loc.text for loc in soup.find_all('loc')]
 
-# Function to compare multiple websites
-def compare_websites(urls):
-    website_data = []
-    
-    for url in urls:
-        content = scrape_website(url)
-        _, _ = embed_website_content(content)
-        website_data.append(content)
-    
-    combined_data = "\n\n".join(website_data)
-    comparison_result = comparison_chain.run(website_data=combined_data)
-    
-    return comparison_result
+      #Filter URLs
+      selected_urls = [url for url in urls if any(filter in url for filter in filter_urls)]
+      #Append URLs to the main list
+      filtered_urls.extend(selected_urls)
+    except Exception as e:
+      st.error("Error loading sitemap")
+      return
+  docs = []
+  for url in filtered_urls:
+      try:
+        loader = WebBaseLoader(url)
+        docs.extend(loader.load())
+        #st.success(f"Successfully loaded content from: {url}")
+        st.success(f"Successfully loaded content from: {len(filtered_urls)} URL(s)")
+      except Exception as e:
+        st.error("Failed to load content")
+  st.session_state.docs = docs
+  st.session_state.docs_loaded = True
+  
+#Load the URLs when user clicks a button
+if "docs_loaded" not in st.session_state:
+  st.session_state.docs_loaded = False
+  
+if st.button("Load Documents") and not st.session_state.docs_loaded:
+  load_documents()
+if st.session_state.docs_loaded:
+  #Text Splitting
+  if "document_chunks" not in st.session_state:
+    text_splitter = RecursiveCharacterTextSplitter(
+          chunk_size = 1500,
+          chunk_overlap  = 100,
+          length_function = len,
+      )
+    st.session_state.document_chunks = text_splitter.split_documents(st.session_state.docs)
 
-# Streamlit UI
-st.title("Website Intelligence and Comparison Chatbot")
+      #Vector db creation
+  if "vector_db" not in st.session_state:
+    try:
+       st.session_state.vector_db = FAISS.from_documents(st.session_state.document_chunks, st.session_state.hf_embedding)
+       st.write("Vector store created successfully")
+    except Excpetion as e:
+        st.error("Error creating vector store")
 
-st.write("""
-This chatbot scrapes information from insurance websites and compares the policies.
-Enter the URLs of the websites to compare.
-""")
 
-# Text input for URLs
-url_input = st.text_area("Enter website URLs (comma-separated)", value="https://www.bajajallianz.com/insurance-policy-page, https://www.hdfclife.com/insurance-policy-page")
+#Craft ChatPrompt Template
+  prompt = ChatPromptTemplate.from_template(
+      """
+      You are an HDFC Life Insurance specialist who needs to answer queries based on the information provided in the websites. Please follow all the websites, and answer as per the same.
+      Do not answer anything out of the website information.
+      Do not skip any information as per the query asked from the context. Answer appropriately as per the query asked.
+      All pointers for every questions asked should be mentioned as per the information provided on website.
+      Now, being an excellent HDFC Life Insurance agent, you need to compare your policies against the other company's policies in the websites.
+      Generate tabular data wherever required to classify the difference between different parameters of policies.
+      I will tip you with a $1000 if the answer provided is helpful.
+      <context>
+      {context}
+      </context>
+      Question: {input}""")
+  
+    #Retriever from Vector store
+  retriever = st.session_state.vector_db.as_retriever()
 
-if st.button("Compare Websites"):
-    urls = [url.strip() for url in url_input.split(",")]
-    
-    # Display loading spinner while processing
-    with st.spinner('Comparing websites...'):
-        comparison_result = compare_websites(urls)
-    
-    # Display the result
-    st.subheader("Comparison Result")
-    st.write(comparison_result)
+    #Stuff Document Chain Creation
+  document_chain = create_stuff_documents_chain(st.session_state.llm, prompt)
+
+    #Create a retrieval chain
+  retrieval_chain = create_retrieval_chain(retriever,document_chain)
+
+    #Input for user queries
+  user_query = st.text_input("Ask a question")
+
+    #Process the query
+  if user_query:
+      st.write(f"Processing query: {user_query}")
+      try:
+        response = retrieval_chain.invoke({"input": user_query})
+        
+        #Check if response is valid
+        if response and 'answer' in response:
+          st.write(response['answer'])
+        else:
+          st.error("No answer returned")
+      except Exception as e:
+        st.error("Error during retrieval chain execution")
