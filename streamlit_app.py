@@ -1,97 +1,79 @@
 import streamlit as st
-from langchain.document_loaders.sitemap import SitemapLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.chains import RetrievalQA
+import os
 from langchain_groq import ChatGroq
-from langchain.embeddings import HuggingFaceEmbeddings
-import sentence_transformers
-from langchain_community.vectorstores import FAISS
-from langchain.chains import RetrievalQA
-from langchain_core.prompts import ChatPromptTemplate
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain.chains import create_retrieval_chain
-from langchain.document_loaders import WebBaseLoader
-import requests
+from langchain.prompts import PromptTemplate
+from langchain.chains import LLMChain
 from bs4 import BeautifulSoup
-
-#Steamlite title
-st.title("Website Intelligence and Comparer")
+import requests
+import faiss
+import numpy as np
 
 #LLM
 api_key = "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"
 
 llm = ChatGroq(groq_api_key = api_key, model_name = 'llama3-8b-8192', temperature = 0.2, top_p = 0.2)
 
-#Embedding
-hf_embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
+# Define a prompt template for LangChain
+prompt_template = """Given the following information extracted from websites:
 
-urls = ["https://www.hdfclife.com/term-insurance-plans",
-"https://www.hdfclife.com/term-insurance-plans/click-2-protect-super",
-"https://www.hdfclife.com/term-insurance-plans/sanchay-legacy",
-"https://www.hdfclife.com/term-insurance-plans/click-2-protect-elite",
-"https://www.hdfclife.com/term-insurance-plans/term-with-return-of-premium-plan",
-"https://www.hdfclife.com/term-insurance-plans/quick-protect",
-"https://www.hdfclife.com/term-insurance-plans/saral-jeevan-bima"]
+{website_data}
 
-loaded_docs = []
+Can you summarize and compare the key details, especially the differences in the insurance policies offered by various companies?"""
 
-for url in urls:
-  try:
-    st.spinner("Loading URL...")
-    loader = WebBaseLoader(url)
-    docs = loader.load()
-    loaded_docs.extend(docs)
-    #st.success("Successfully loaded content")
-  except Exception as e:
-    st.error("Error")
+prompt = PromptTemplate(template=prompt_template, input_variables=["website_data"])
+comparison_chain = LLMChain(llm=llm, prompt=prompt)
 
-st.write(f"Loaded urls: {len(urls)}")
+# Function to scrape website content (text extraction)
+def scrape_website(url):
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
+    
+    # Extract text from website's relevant sections
+    paragraphs = soup.find_all('p')
+    text = "\n".join([para.get_text() for para in paragraphs])
+    
+    return text
 
-#Craft ChatPrompt Template
-prompt = ChatPromptTemplate.from_template(
-"""
-You are an HDFC Life Insurance specialist who needs to answer queries based on the information provided in the websites. Please follow all the websites, and answer as per the same.
-Do not answer anything out of the website information.
-Do not skip any information from the context. Answer appropriately as per the query asked.
-Now, being an excellent HDFC Life Insurance agent, you need to compare your policies against the other company's policies in the websites.
-Generate tabular data wherever required to classify the difference between different parameters of policies.
-I will tip you with a $1000 if the answer provided is helpful.
-<context>
-{context}
-</context>
-Question: {input}""")
+# Function to embed the website content using FAISS
+def embed_website_content(text):
+    vectors = np.array([llm.embed(text_chunk) for text_chunk in text.split("\n")])
+    index = faiss.IndexFlatL2(vectors.shape[1])
+    index.add(vectors)
+    
+    return index, vectors
 
-#Text Splitting
-text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size = 1500,
-    chunk_overlap  = 100,
-    length_function = len,
-)
+# Function to compare multiple websites
+def compare_websites(urls):
+    website_data = []
+    
+    for url in urls:
+        content = scrape_website(url)
+        _, _ = embed_website_content(content)
+        website_data.append(content)
+    
+    combined_data = "\n\n".join(website_data)
+    comparison_result = comparison_chain.run(website_data=combined_data)
+    
+    return comparison_result
 
-document_chunks = text_splitter.split_documents(docs)
+# Streamlit UI
+st.title("Website Intelligence and Comparison Chatbot")
 
-#Vector database storage
-vector_db = FAISS.from_documents(document_chunks, hf_embedding)
+st.write("""
+This chatbot scrapes information from insurance websites and compares the policies.
+Enter the URLs of the websites to compare.
+""")
 
-#Streamlit user query
-query = st.text_input("Enter your question")
+# Text input for URLs
+url_input = st.text_area("Enter website URLs (comma-separated)", value="https://www.bajajallianz.com/insurance-policy-page, https://www.hdfclife.com/insurance-policy-page")
 
-if query:
-    #Perform similarity search
-    docs = vector_db.similarity_search(query)
-
-    #Stuff Document Chain Creation
-    document_chain = create_stuff_documents_chain(llm, prompt)
-
-    #Retriever from Vector store
-    retriever = vector_db.as_retriever()
-
-    #Create a retrieval chain
-    retrieval_chain = create_retrieval_chain(retriever,document_chain)
-
-    response = retrieval_chain.invoke({"input": query})
-
-    st.write(response['answer'])
-    response = retrieval_chain.invoke({"input": query})
-
-    st.write(response['answer'])
+if st.button("Compare Websites"):
+    urls = [url.strip() for url in url_input.split(",")]
+    
+    # Display loading spinner while processing
+    with st.spinner('Comparing websites...'):
+        comparison_result = compare_websites(urls)
+    
+    # Display the result
+    st.subheader("Comparison Result")
+    st.write(comparison_result)
