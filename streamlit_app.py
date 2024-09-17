@@ -110,7 +110,7 @@ retrieval_chain = create_retrieval_chain(retriever,document_chain)
 
 user_query = st.text_input("Ask a question:")
 if st.button("Get Answer"):
-  response = retrieval_chain.invoke({"input": user_query)}
+  response = retrieval_chain.invoke({"input": user_query})
 
 st.write("Answer")
 st.write(response['answer'])
