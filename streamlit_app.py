@@ -57,17 +57,17 @@ def fetch_documents(sitemap_urls, filter_urls):
   #Append URLs to the main list
   #filtered_urls.extend(selected_urls)
 
-    for url in selected_urls:
-      try:
-        #st.write(f"Loading URL: {url}")
-        loader = WebBaseLoader(url)
-        docs = loader.load()
-        for doc in docs:
-          doc.metadata["source"] = url
-        loaded_docs.extend(docs)
-        #st.success("Successfully loaded document")
-      except Exception as e:
-        st.error("Error")
+      for url in selected_urls:
+        try:
+          #st.write(f"Loading URL: {url}")
+          loader = WebBaseLoader(url)
+          docs = loader.load()
+          for doc in docs:
+            doc.metadata["source"] = url
+          loaded_docs.extend(docs)
+          #st.success("Successfully loaded document")
+        except Exception as e:
+          st.error("Error")
   return loaded_docs
 
 #Load documents
