@@ -12,6 +12,8 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
 from langchain.document_loaders import WebBaseLoader
 from langchain.document_loaders import PyPDFLoader
+import requests
+from bs4 import BeautifulSoup
 
 #Stremlit App title
 st.title("Website Intelligence")
@@ -24,30 +26,36 @@ llm = ChatGroq(groq_api_key = api_key, model_name = 'llama-3.1-70b-versatile', t
 #Embedding
 hf_embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
 
-import requests
-from bs4 import BeautifulSoup
+#User inputs for sitemap URLs and filter keywords
+sitemap_input = st.text_area("Enter Sitemap URLs (https://www.example.com/sitemap.xml):")
+filter_input = st.text_area("Enter keywords to filter (comma-seperated):")
 
-sitemap_urls = ["https://www.tataaia.com/sitemap.xml", "https://www.hdfclife.com/universal-sitemap.xml", "https://www.bajajallianzlife.com/sitemap.xml"]
+#Processing user inputs
+sitemap_urls = [url.strip() for url in sitemap_input.split(",") if url.strip()]
+filter_urls = [keyword.strip() for keyword in filter_input.splite(",") if keyword.strip()]
 
-filter_urls = ["claim", "settlement"]
 
 all_urls = []
 filtered_urls = []
-loaded_docs = []
 
-for sitemap_url in sitemap_urls:
-  response = requests.get(sitemap_url)
-  sitemap_content = response.content
+st.cache_data(show_spinner = False)
 
-  #Parse sitemap URL
-  soup = BeautifulSoup(sitemap_content, 'xml')
-  urls = [loc.text for loc in soup.find_all('loc')]
+def fetch_documents(sitemap_urls, filter_urls):
+  loaded_docs = []
+  for sitemap_url in sitemap_urls:
+    try:
+      response = requests.get(sitemap_url)
+      sitemap_content = response.content
 
-  #Filter URLs
-  selected_urls = [url for url in urls if any(filter in url for filter in filter_urls)]
+      #Parse sitemap URL
+      soup = BeautifulSoup(sitemap_content, 'xml')
+      urls = [loc.text for loc in soup.find_all('loc')]
+
+      #Filter URLs
+      selected_urls = [url for url in urls if any(filter in url for filter in filter_urls)]
 
   #Append URLs to the main list
-  filtered_urls.extend(selected_urls)
+  #filtered_urls.extend(selected_urls)
 
   for url in filtered_urls:
     try:
@@ -60,10 +68,15 @@ for sitemap_url in sitemap_urls:
       #st.success("Successfully loaded document")
     except Exception as e:
       st.error("Error")
+  return loaded_docs
 
-st.write(f"Loaded documents: {len(loaded_docs)}")
+#Load documents
+if st.button("Load Documents"):
+  loaded_docs = fetch_documents(sitemap_urls, filter_urls)
+  st.write(f"Loaded documents: {len(loaded_docs)}")
 
-#Craft ChatPrompt Template
+
+  #Craft ChatPrompt Template
 prompt = ChatPromptTemplate.from_template(
 """
 You are a Life Insurance specialist who needs to answer queries based on the information provided in the websites only. Please follow all the websites, and answer as per the same.
