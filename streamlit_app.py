@@ -35,9 +35,6 @@ sitemap_urls = [url.strip() for url in sitemap_input.split(",") if url.strip()]
 filter_urls = [keyword.strip() for keyword in filter_input.splite(",") if keyword.strip()]
 
 
-all_urls = []
-filtered_urls = []
-
 st.cache_data(show_spinner = False)
 
 def fetch_documents(sitemap_urls, filter_urls):
