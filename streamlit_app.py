@@ -137,7 +137,6 @@ if st.button("Get Answer"):
       st.write(response['answer'])
       
       st.write("Sources:")
-      for doc in response.get('source_documents', []):
-        st.write(f" {doc.metadata['source']}")
+      
   except Exception as e:
         st.error("Error with query retrieval")
