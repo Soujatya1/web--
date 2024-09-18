@@ -92,18 +92,18 @@ if st.button("Load Documents"):
 
 
     #Text Splitting
-    text_splitter = RecursiveCharacterTextSplitter(
+  text_splitter = RecursiveCharacterTextSplitter(
         chunk_size = 1000,
         chunk_overlap  = 100,
         length_function = len,
-    )
+  )
     
-    document_chunks = text_splitter.split_documents(loaded_docs)
-    print(len(loaded_docs))
+  document_chunks = text_splitter.split_documents(loaded_docs)
+  print(len(loaded_docs))
     
     
     #Vector database storage
-    vector_db = FAISS.from_documents(document_chunks, hf_embedding)
+  vector_db = FAISS.from_documents(document_chunks, hf_embedding)
     
     
     #query = "What are the premium payment modes available for TATA life insurance plan & HDFC Life insurance plan?"
@@ -113,21 +113,21 @@ if st.button("Load Documents"):
       #print({doc.page_content})
     
     #Stuff Document Chain Creation
-    document_chain = create_stuff_documents_chain(llm, prompt)
+  document_chain = create_stuff_documents_chain(llm, prompt)
     
     #Retriever from Vector store
-    retriever = vector_db.as_retriever()
+  retriever = vector_db.as_retriever()
     
     #Create a retrieval chain
-    retrieval_chain = create_retrieval_chain(retriever,document_chain)
+  retrieval_chain = create_retrieval_chain(retriever,document_chain)
     
     user_query = st.text_input("Ask a question:")
-    if st.button("Get Answer"):
-      response = retrieval_chain.invoke({"input": user_query})
+  if st.button("Get Answer"):
+    response = retrieval_chain.invoke({"input": user_query})
     
-    st.write("Answer")
-    st.write(response['answer'])
+  st.write("Answer")
+  st.write(response['answer'])
     
-    st.write("Sources:")
-    for doc in response.get('source_documents', []):
-      st.write(f" {doc.metadata['source']}")
+  st.write("Sources:")
+  for doc in response.get('source_documents', []):
+    st.write(f" {doc.metadata['source']}")
