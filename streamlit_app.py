@@ -72,9 +72,11 @@ def fetch_documents(sitemap_urls, filter_urls):
 
 #Load documents
 if st.button("Load Documents"):
-  loaded_docs = fetch_documents(sitemap_urls, filter_urls)
-  st.write(f"Loaded documents: {len(loaded_docs)}")
-  
+  try:
+    loaded_docs = fetch_documents(sitemap_urls, filter_urls)
+    st.write(f"Loaded documents: {len(loaded_docs)}")
+  except Exception as e:
+    st.error("Error")
   
     #Craft ChatPrompt Template
     prompt = ChatPromptTemplate.from_template(
