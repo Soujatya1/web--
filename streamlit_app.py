@@ -67,9 +67,9 @@ def fetch_documents(sitemap_urls, filter_urls):
           loaded_docs.extend(docs)
           #st.success("Successfully loaded document")
         except Exception as e:
-          st.error("Error")
+          st.error("Error loading URL")
     except Exception as e:
-        st.error("Error")
+        st.error("Error loading sitemap")
   return loaded_docs
 
 #Load Documents
@@ -124,7 +124,7 @@ if submit_button:
     retrieval_chain = create_retrieval_chain(retriever,document_chain)
 
   except Exception as e:
-    st.error("Error")
+    st.error("Error fetching documents")
   
       
 user_query = st.text_input("Ask a question:")
@@ -139,4 +139,4 @@ if st.button("Get Answer"):
     for doc in response.get('source_documents', []):
       st.write(f" {doc.metadata['source']}")
   except Exception as e:
-    st.error("Error")
+    st.error("Error with query retrieval")
