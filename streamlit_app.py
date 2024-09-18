@@ -27,8 +27,11 @@ llm = ChatGroq(groq_api_key = api_key, model_name = 'llama-3.1-70b-versatile', t
 hf_embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
 
 #User inputs for sitemap URLs and filter keywords
-sitemap_input = st.text_area("Enter Sitemap URLs (https://www.example.com/sitemap.xml):")
-filter_input = st.text_area("Enter keywords to filter (comma-seperated):")
+with st.form(key = 'document_form'):
+  sitemap_input = st.text_area("Enter Sitemap URLs (https://www.example.com/sitemap.xml):")
+  filter_input = st.text_area("Enter keywords to filter (comma-seperated):")
+
+  submit_button = st.form_submit_button(label = "Load Documents")
 
 #Processing user inputs
 sitemap_urls = [url.strip() for url in sitemap_input.split(",") if url.strip()]
@@ -67,10 +70,9 @@ def fetch_documents(sitemap_urls, filter_urls):
           st.error("Error")
       return loaded_docs
 
-load_docs = st.button("Load Documents")
 #Load Documents
 
-if load_docs:
+if submit_button:
   try:
     loaded_docs = fetch_documents(sitemap_urls, filter_urls)
     st.write(f"Loaded documents: {len(loaded_docs)}")
