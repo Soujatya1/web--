@@ -66,10 +66,11 @@ def fetch_documents(sitemap_urls, filter_urls):
         except Exception as e:
           st.error("Error")
       return loaded_docs
-      
+
+load_docs = st.button("Load Documents")
 #Load Documents
 
-if st.button("Load Documents"):
+if load_docs:
   try:
     loaded_docs = fetch_documents(sitemap_urls, filter_urls)
     st.write(f"Loaded documents: {len(loaded_docs)}")
