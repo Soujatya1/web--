@@ -139,4 +139,4 @@ if st.button("Get Answer"):
       st.write("Sources:")
       
   except Exception as e:
-        st.error("Error with query retrieval")
+    st.error("Error with query retrieval")
