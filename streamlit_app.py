@@ -35,7 +35,7 @@ with st.form(key = 'document_form'):
 
 #Processing user inputs
 sitemap_urls = [url.strip() for url in sitemap_input.split(",") if url.strip()]
-filter_urls = [keyword.strip() for keyword in filter_input.splite(",") if keyword.strip()]
+filter_urls = [keyword.strip() for keyword in filter_input.split(",") if keyword.strip()]
 
 
 st.cache_data(show_spinner = False)
