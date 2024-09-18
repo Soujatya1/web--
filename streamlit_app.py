@@ -132,7 +132,7 @@ if st.button("Get Answer"):
   try:
     response = retrieval_chain.invoke({"input": user_query})
       
-    st.write("Answer")
+    #st.write("Answer")
     st.write(response['answer'])
       
     st.write("Sources:")
