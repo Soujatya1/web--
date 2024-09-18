@@ -71,13 +71,13 @@ def fetch_documents(sitemap_urls, filter_urls):
       return loaded_docs
 
 #Load documents
-  if st.button("Load Documents"):
-    loaded_docs = fetch_documents(sitemap_urls, filter_urls)
-    st.write(f"Loaded documents: {len(loaded_docs)}")
+if st.button("Load Documents"):
+  loaded_docs = fetch_documents(sitemap_urls, filter_urls)
+  st.write(f"Loaded documents: {len(loaded_docs)}")
 
 
-    #Craft ChatPrompt Template
-    prompt = ChatPromptTemplate.from_template(
+  #Craft ChatPrompt Template
+  prompt = ChatPromptTemplate.from_template(
     """
     You are a Life Insurance specialist who needs to answer queries based on the information provided in the websites only. Please follow all the websites, and answer as per the same.
     Do not answer anything except from the website information which has been entered.
