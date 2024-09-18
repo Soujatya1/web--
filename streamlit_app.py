@@ -127,16 +127,16 @@ if submit_button:
     st.error("Error fetching documents")
   
       
-user_query = st.text_input("Ask a question:")
-if st.button("Get Answer"):
-  try:
-    response = retrieval_chain.invoke({"input": user_query})
+    user_query = st.text_input("Ask a question:")
+    if st.button("Get Answer"):
+      try:
+        response = retrieval_chain.invoke({"input": user_query})
       
     #st.write("Answer")
-    st.write(response['answer'])
+        st.write(response['answer'])
       
-    st.write("Sources:")
-    for doc in response.get('source_documents', []):
-      st.write(f" {doc.metadata['source']}")
-  except Exception as e:
-    st.error("Error with query retrieval")
+        st.write("Sources:")
+        for doc in response.get('source_documents', []):
+          st.write(f" {doc.metadata['source']}")
+      except Exception as e:
+        st.error("Error with query retrieval")
