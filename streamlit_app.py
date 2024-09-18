@@ -66,8 +66,9 @@ def fetch_documents(sitemap_urls, filter_urls):
         except Exception as e:
           st.error("Error")
       return loaded_docs
+      
+#Load Documents
 
-#Load documents
 if st.button("Load Documents"):
   try:
     loaded_docs = fetch_documents(sitemap_urls, filter_urls)
