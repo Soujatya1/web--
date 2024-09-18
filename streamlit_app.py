@@ -71,9 +71,9 @@ def fetch_documents(sitemap_urls, filter_urls):
       return loaded_docs
 
 #Load documents
-  if st.button("Load Documents"):
-    loaded_docs = fetch_documents(sitemap_urls, filter_urls)
-    st.write(f"Loaded documents: {len(loaded_docs)}")
+if st.button("Load Documents"):
+  loaded_docs = fetch_documents(sitemap_urls, filter_urls)
+  st.write(f"Loaded documents: {len(loaded_docs)}")
   
   
     #Craft ChatPrompt Template
