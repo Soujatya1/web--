@@ -68,7 +68,9 @@ def fetch_documents(sitemap_urls, filter_urls):
           #st.success("Successfully loaded document")
         except Exception as e:
           st.error("Error")
-      return loaded_docs
+    except Exception as e:
+        st.error("Error")
+  return loaded_docs
 
 #Load Documents
 
