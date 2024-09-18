@@ -101,7 +101,7 @@ if submit_button:
     )
       
     document_chunks = text_splitter.split_documents(loaded_docs)
-  print(len(loaded_docs))
+  
       
       
       #Vector database storage
