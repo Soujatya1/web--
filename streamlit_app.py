@@ -72,14 +72,12 @@ def fetch_documents(sitemap_urls, filter_urls):
 
 #Load documents
 if st.button("Load Documents"):
-  loaded_docs = fetch_documents(sitemap_urls, filter_urls)
-  st.write(f"Loaded documents: {len(loaded_docs)}")
-  
-except Exception as e:
-  st.error("Error")
+  try:
+    loaded_docs = fetch_documents(sitemap_urls, filter_urls)
+    st.write(f"Loaded documents: {len(loaded_docs)}")
   
     #Craft ChatPrompt Template
-  prompt = ChatPromptTemplate.from_template(
+    prompt = ChatPromptTemplate.from_template(
       """
       You are a Life Insurance specialist who needs to answer queries based on the information provided in the websites only. Please follow all the websites, and answer as per the same.
       Do not answer anything except from the website information which has been entered.
@@ -93,18 +91,18 @@ except Exception as e:
       Question: {input}""")
   
       #Text Splitting
-  text_splitter = RecursiveCharacterTextSplitter(
+    text_splitter = RecursiveCharacterTextSplitter(
           chunk_size = 1000,
           chunk_overlap  = 100,
           length_function = len,
     )
       
-  document_chunks = text_splitter.split_documents(loaded_docs)
+    document_chunks = text_splitter.split_documents(loaded_docs)
   print(len(loaded_docs))
       
       
       #Vector database storage
-  vector_db = FAISS.from_documents(document_chunks, hf_embedding)
+    vector_db = FAISS.from_documents(document_chunks, hf_embedding)
       
       
       #query = "What are the premium payment modes available for TATA life insurance plan & HDFC Life insurance plan?"
@@ -114,16 +112,21 @@ except Exception as e:
         #print({doc.page_content})
       
       #Stuff Document Chain Creation
-  document_chain = create_stuff_documents_chain(llm, prompt)
+    document_chain = create_stuff_documents_chain(llm, prompt)
       
       #Retriever from Vector store
-  retriever = vector_db.as_retriever()
+    retriever = vector_db.as_retriever()
       
       #Create a retrieval chain
-  retrieval_chain = create_retrieval_chain(retriever,document_chain)
+    retrieval_chain = create_retrieval_chain(retriever,document_chain)
+
+  except Exception as e:
+    st.error("Error")
+  
       
-  user_query = st.text_input("Ask a question:")
-  if st.button("Get Answer"):
+user_query = st.text_input("Ask a question:")
+if st.button("Get Answer"):
+  try:
     response = retrieval_chain.invoke({"input": user_query})
       
     st.write("Answer")
@@ -132,3 +135,5 @@ except Exception as e:
     st.write("Sources:")
     for doc in response.get('source_documents', []):
       st.write(f" {doc.metadata['source']}")
+  except Exception as e:
+    st.error("Error")
