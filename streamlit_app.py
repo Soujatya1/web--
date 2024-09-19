@@ -86,7 +86,7 @@ if st.button("Load and Process"):
         if api_key:
             llm = ChatGroq(groq_api_key=api_key, model_name='llama-3.1-70b-versatile', temperature=0.2, top_p=0.2)
             hf_embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-            st.write(f"HuggingFace model initialized: {hf_embedding}")
+            #st.write(f"HuggingFace model initialized: {hf_embedding}")
 
             # Craft ChatPrompt Template
             prompt = ChatPromptTemplate.from_template(
@@ -161,7 +161,7 @@ if st.button("Load and Process"):
 
             # Create a retrieval chain
                     st.session_state['retrieval_chain'] = create_retrieval_chain(retriever, document_chain)
-                    st.write("R chain successfully created")
+                    #st.write("Retrieval chain successfully created")
                 else:
                     st.write("Embeddings not in 2D or unexpected shape")
             except Exception as e:
@@ -169,13 +169,21 @@ if st.button("Load and Process"):
 
 
 
-# Query Section
 query = st.text_input("Enter your query:")
 if st.button("Get Answer") and query:
     if st.session_state['retrieval_chain']:
         with st.spinner("Generating response..."):
-            response = st.session_state['retrieval_chain'].invoke({"input": query})
-            st.write("Response:")
-            st.write(response['answer'])
+            try:
+                # Adjusting invocation to unpack based on expected return type
+                response = st.session_state['retrieval_chain'].invoke({"input": query})
+                
+                # Check if the response is a dictionary and retrieve the answer
+                if isinstance(response, dict) and 'answer' in response:
+                    st.write("Response:")
+                    st.write(response['answer'])
+                else:
+                    st.write("Unexpected response format:", response)
+            except Exception as e:
+                st.write(f"Error during response generation: {e}")
     else:
         st.write("Please load and process documents first.")
