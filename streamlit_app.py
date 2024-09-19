@@ -15,9 +15,9 @@ import requests
 from bs4 import BeautifulSoup
 
 # Streamlit UI
-st.title("Knowledge Management Chatbot")
+st.title("Website Intelligence")
 
-api_key = st.text_input("Enter your Groq API key:", type="password")
+api_key = st.text_input("Enter your Groq API key:")
 
 sitemap_urls_input = st.text_area("Enter sitemap URLs (one per line):")
 filter_words_input = st.text_area("Enter filter words (one per line):")
@@ -66,7 +66,7 @@ if st.button("Load and Process"):
     
     # LLM
     if api_key:
-        llm = ChatGroq(groq_api_key=""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", model_name='llama-3.1-70b-versatile', temperature=0.2, top_p=0.2)
+        llm = ChatGroq(groq_api_key="api_key", model_name='llama-3.1-70b-versatile', temperature=0.2, top_p=0.2)
 
         # Embedding
         hf_embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
