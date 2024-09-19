@@ -22,7 +22,7 @@ if 'retrieval_chain' not in st.session_state:
     st.session_state['retrieval_chain'] = None
 
 # Streamlit UI
-st.title("Knowledge Management Chatbot")
+st.title("Website Intelligence")
 
 api_key = "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"
 
