@@ -5,15 +5,17 @@ from langchain.chains import RetrievalQA
 from langchain_groq import ChatGroq
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain.chains import RetrievalQA
 from langchain_core.prompts import ChatPromptTemplate
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain.chains import create_retrieval_chain
+from langchain_chains.combine_documents import create_stuff_documents_chain
+from langchain_chains import create_retrieval_chain
 from langchain.document_loaders import WebBaseLoader
 import requests
 from bs4 import BeautifulSoup
+import pickle
+import os
+from joblib import Parallel, delayed
 
-# Initialize session state variables
+# Initialize session state variables to persist data across reruns
 if 'loaded_docs' not in st.session_state:
     st.session_state['loaded_docs'] = []
 if 'vector_db' not in st.session_state:
@@ -22,7 +24,7 @@ if 'retrieval_chain' not in st.session_state:
     st.session_state['retrieval_chain'] = None
 
 # Streamlit UI
-st.title("Website Intelligence")
+st.title("Knowledge Management Chatbot")
 
 api_key = "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"
 
@@ -43,7 +45,7 @@ if st.button("Load and Process"):
             sitemap_content = response.content
 
             # Parse sitemap URL
-            soup = BeautifulSoup(sitemap_content, 'lxml')
+            soup = BeautifulSoup(sitemap_content, 'xml')
             urls = [loc.text for loc in soup.find_all('loc')]
 
             # Filter URLs
@@ -74,7 +76,7 @@ if st.button("Load and Process"):
     # LLM and Embeddings Initialization
     if api_key:
         llm = ChatGroq(groq_api_key=api_key, model_name='llama-3.1-70b-versatile', temperature=0.2, top_p=0.2)
-        hf_embedding = HuggingFaceEmbeddings(model_name = "sentence-transformers/paraphrase-MiniLM-L3-v2")
+        hf_embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
         # Craft ChatPrompt Template
         prompt = ChatPromptTemplate.from_template(
@@ -98,16 +100,51 @@ if st.button("Load and Process"):
         
         # Text Splitting
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=2000,
-            chunk_overlap=100,
+            chunk_size=1500,
+            chunk_overlap=200,
             length_function=len,
         )
 
         document_chunks = text_splitter.split_documents(st.session_state['loaded_docs'])
         st.write(f"Number of chunks: {len(document_chunks)}")
 
-        # Vector database storage
-        st.session_state['vector_db'] = FAISS.from_documents(document_chunks, hf_embedding)
+        # Embedding and Vector Database Storage
+        batch_size = 16 # Adjust batch size according to your memory limits
+        vectors = []
+
+        # Check if cached embeddings exist
+        embeddings_cache_file = "cached_embeddings.pkl"
+        if os.path.exists(embeddings_cache_file):
+            with open(embeddings_cache_file, 'rb') as f:
+                vectors = pickle.load(f)
+        else:
+            # Parallel embedding with batching
+            def embed_chunk(chunk):
+                return hf_embedding.embed_documents(chunk)
+            
+            vectors = Parallel(n_jobs=-1)(delayed(embed_chunk)(document_chunks[i:i + batch_size]) 
+                                          for i in range(0, len(document_chunks), batch_size))
+            # Flatten the list of vectors
+            vectors = [item for sublist in vectors for item in sublist]
+
+            # Cache the embeddings
+            with open(embeddings_cache_file, 'wb') as f:
+                pickle.dump(vectors, f)
+
+        # Initialize FAISS index with IVF
+        import faiss
+        dimension = len(vectors[0]) # Dimensionality of embeddings
+        nlist = 100 # Number of clusters for IVF
+
+        quantizer = faiss.IndexFlatL2(dimension)
+        ivf_index = faiss.IndexIVFFlat(quantizer, dimension, nlist)
+
+        # Train and add vectors to FAISS
+        ivf_index.train(vectors)
+        ivf_index.add(vectors)
+
+        # Store in FAISS vector database
+        st.session_state['vector_db'] = FAISS(embeddings=hf_embedding, index=ivf_index)
 
         # Stuff Document Chain Creation
         document_chain = create_stuff_documents_chain(llm, prompt)
