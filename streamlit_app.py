@@ -167,6 +167,7 @@ if st.button("Load and Process"):
             except Exception as e:
                 st.write("Error processing embeddings")
 
+st.write(type(st.session_state['retrieval_chain']))
 
 
 # Query Section
