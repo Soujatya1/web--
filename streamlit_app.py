@@ -14,6 +14,7 @@ from bs4 import BeautifulSoup
 import pickle
 import os
 from joblib import Parallel, delayed
+import numpy as np
 
 # Initialize session state variables to persist data across reruns
 if 'loaded_docs' not in st.session_state:
@@ -146,9 +147,11 @@ if st.button("Load and Process"):
         quantizer = faiss.IndexFlatL2(dimension)
         ivf_index = faiss.IndexIVFFlat(quantizer, dimension, nlist)
 
+        vectors_np = np.array(vectors)
+
         # Train and add vectors to FAISS
-        ivf_index.train(vectors)
-        ivf_index.add(vectors)
+        ivf_index.train(vectors_np)
+        ivf_index.add(vectors_np)
 
         # Store in FAISS vector database
         st.session_state['vector_db'] = FAISS(embeddings=hf_embedding, index=ivf_index)
