@@ -13,6 +13,7 @@ import requests
 from bs4 import BeautifulSoup
 import numpy as np
 import concurrent.futures
+import faiss
 
 # Initialize session state variables to persist data across reruns
 if 'loaded_docs' not in st.session_state:
