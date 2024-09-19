@@ -121,38 +121,40 @@ if st.button("Load and Process"):
             embeddings = hf_embedding.aembed_documents(texts)
 
             # Create FAISS vector store from the document chunks and embedding function
-            embeddings_array = np.array(embeddings)
-            if embeddings_array.ndim==1:
-                embeddings_array - embeddings_array.reshape(-1, embeddings_array.shape[0])
-            elif embeddings_array.ndim == 2:
-                pass
-            else:
-                st.write("Neither in 1D or 2D")
-            if embeddings_array.ndim==2:
-                dimension = embeddings_array.shape[1]
-                faiss_index = faiss.IndexFlatL2(dimension)
-                faiss_index.add(embeddings_array)
-                st.session_state['vector_db'] = faiss_index
+            try:
+                embeddings_array = np.array(embeddings)
+                if len(embeddings_array.shape) == 0:
+                    st.write("Array not valid")
+                    return
+                if len(embeddings_array.shape) == 1:
+                    embeddings_array = embeddings_array.reshape(-1, 1)
+                elif len(embeddings_array.shape) > 2:
+                    embeddings_array = np.vstack(embeddings_array)
+                if embeddings_array.ndim==2:
+                    dimension = embeddings_array.shape[1]
+                    faiss_index = faiss.IndexFlatL2(dimension)
+                    faiss_index.add(embeddings_array)
+                    st.session_state['vector_db'] = faiss_index
 
                 #Create a document store and index-to-docstore ID mapping
-                docstore = {i: doc.metadata["source"] for i, doc in enumerate(document_chunks)}
-                index_to_docstore_id = {i: i for i in range(len(document_chunks))}
-                def embedding_function(texts):
-                    return np.array(hf_embedding.aembed_documents(texts))
+                    docstore = {i: doc.metadata["source"] for i, doc in enumerate(document_chunks)}
+                    index_to_docstore_id = {i: i for i in range(len(document_chunks))}
+                    def embedding_function(texts):
+                        return np.array(hf_embedding.aembed_documents(texts))
 
             #Initialize FAISS vector store
-                st.session_state['vector_db'] = FAISS(index = faiss_index, docstore = docstore, index_to_docstore_id = index_to_docstore_id, embedding_function = embedding_function)
+                    st.session_state['vector_db'] = FAISS(index = faiss_index, docstore = docstore, index_to_docstore_id = index_to_docstore_id, embedding_function = embedding_function)
 
             # Stuff Document Chain Creation
-                document_chain = create_stuff_documents_chain(llm, prompt)
+                    document_chain = create_stuff_documents_chain(llm, prompt)
 
             # Retriever from Vector store
-                retriever = st.session_state['vector_db'].as_retriever()
+                    retriever = st.session_state['vector_db'].as_retriever()
 
             # Create a retrieval chain
-                st.session_state['retrieval_chain'] = create_retrieval_chain(retriever, document_chain)
-            else:
-                st.write("Embeddings not in 2D or unexpected shape")
+                    st.session_state['retrieval_chain'] = create_retrieval_chain(retriever, document_chain)
+                else:
+                    st.write("Embeddings not in 2D or unexpected shape")
 
 # Query Section
 query = st.text_input("Enter your query:")
