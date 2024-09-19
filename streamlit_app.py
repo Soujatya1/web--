@@ -122,6 +122,12 @@ if st.button("Load and Process"):
 
             # Create FAISS vector store from the document chunks and embedding function
             embeddings_array = np.array(embeddings)
+            if embeddings_array.ndim==1:
+                embeddings_array - embeddings_array.reshape(-1, embeddings_array.shape[0])
+            elif embeddings_array.ndim == 2:
+                pass
+            else:
+                st.write("Neither in 1D or 2D")
             if embeddings_array.ndim==2:
                 dimension = embeddings_array.shape[1]
                 faiss_index = faiss.IndexFlatL2(dimension)
