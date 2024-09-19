@@ -173,7 +173,7 @@ st.write(type(st.session_state['retrieval_chain']))
 # Query Section
 query = st.text_input("Enter your query:")
 if st.button("Get Answer") and query:
-    if st.retrieval_chain:
+    if retrieval_chain:
         with st.spinner("Generating response..."):
             try:
                 response = retrieval_chain.invoke({"input": query})
