@@ -61,8 +61,9 @@ if st.button("Load and Process"):
 
                     for doc in docs:
                         doc.metadata["source"] = url
-		st.session_state['loaded_docs'].extend(docs)
-		    st.write("Successfully loaded document") 
+
+	  st.session_state['loaded_docs'].extend(docs)	
+                    st.write("Successfully loaded document")
                 except Exception as e:
                     st.write(f"Error loading {url}: {e}")
 
