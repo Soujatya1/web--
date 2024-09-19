@@ -175,20 +175,13 @@ if st.button("Get Answer") and query:
     if st.session_state['retrieval_chain']:
         with st.spinner("Generating response..."):
             try:
-                # Try using 'call' instead of 'invoke'
+                # Using 'run' method instead of 'invoke' or 'call'
                 response = st.session_state['retrieval_chain'].run(query)
                 
-                # Debug the response
+                # Debugging the response type and content
                 st.write("Response type:", type(response))
-                st.write("Raw response:")
+                st.write("Response:")
                 st.write(response)
-                
-                # Handle response accordingly
-                if isinstance(response, dict) and 'answer' in response:
-                    st.write("Answer:")
-                    st.write(response['answer'])
-                else:
-                    st.write("Unexpected response format.")
             except Exception as e:
                 st.write(f"Error during response generation: {e}")
     else:
