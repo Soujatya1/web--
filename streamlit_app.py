@@ -86,6 +86,7 @@ if st.button("Load and Process"):
         if api_key:
             llm = ChatGroq(groq_api_key=api_key, model_name='llama-3.1-70b-versatile', temperature=0.2, top_p=0.2)
             hf_embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+            st.write(f"HuggingFace model initialized: {hf_embedding}")
 
             # Craft ChatPrompt Template
             prompt = ChatPromptTemplate.from_template(
@@ -128,7 +129,7 @@ if st.button("Load and Process"):
             # Create FAISS vector store from the document chunks and embedding function
             try:
                 embeddings_array = np.array(embeddings)
-                st.write("Generated embeddings")
+                st.write(f"Embeddings array shape: {embeddings_array.shape}")
                 if len(embeddings_array.shape) == 0:
                     st.write("Array not valid")
                     
@@ -136,11 +137,12 @@ if st.button("Load and Process"):
                     embeddings_array = embeddings_array.reshape(-1, 1)
                 elif len(embeddings_array.shape) > 2:
                     embeddings_array = np.vstack(embeddings_array)
-                if embeddings_array.ndim==2:
+                if len(embeddings_array.shape) == 2:
                     dimension = embeddings_array.shape[1]
                     faiss_index = faiss.IndexFlatL2(dimension)
                     faiss_index.add(embeddings_array)
                     st.session_state['vector_db'] = faiss_index
+                    st.write("Vector DB created")
 
                 #Create a document store and index-to-docstore ID mapping
                     docstore = {i: doc.metadata["source"] for i, doc in enumerate(document_chunks)}
@@ -164,16 +166,8 @@ if st.button("Load and Process"):
                     st.write("Embeddings not in 2D or unexpected shape")
             except Exception as e:
                 st.write("Error processing embeddings")
-                st.write(f"Generated {len(embeddings)} embeddings")
-if st.session_state['vector_db'] is not None:
-    st.write("Vector DB successfully created")
-else:
-    st.write("Error creating Vector DB")
 
-if st.session_state['retrieval_chain'] is not None:
-    st.write("Retrieval chain successfully created")
-else:
-    st.write("Failed to create retrieval chain")
+
 
 # Query Section
 query = st.text_input("Enter your query:")
