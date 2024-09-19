@@ -155,7 +155,8 @@ if st.button("Load and Process"):
                     st.session_state['retrieval_chain'] = create_retrieval_chain(retriever, document_chain)
                 else:
                     st.write("Embeddings not in 2D or unexpected shape")
-
+            except Exception as e:
+                st.write("Error processing embeddings")
 # Query Section
 query = st.text_input("Enter your query:")
 if st.button("Get Answer") and query:
