@@ -125,7 +125,7 @@ if st.button("Load and Process"):
                 embeddings_array = np.array(embeddings)
                 if len(embeddings_array.shape) == 0:
                     st.write("Array not valid")
-                return
+                        return
                 if len(embeddings_array.shape) == 1:
                     embeddings_array = embeddings_array.reshape(-1, 1)
                 elif len(embeddings_array.shape) > 2:
