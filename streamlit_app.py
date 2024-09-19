@@ -43,7 +43,7 @@ if st.button("Load and Process"):
             sitemap_content = response.content
 
             # Parse sitemap URL
-            soup = BeautifulSoup(sitemap_content, 'xml')
+            soup = BeautifulSoup(sitemap_content, 'lxml')
             urls = [loc.text for loc in soup.find_all('loc')]
 
             # Filter URLs
