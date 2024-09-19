@@ -176,7 +176,7 @@ if st.button("Get Answer") and query:
         with st.spinner("Generating response..."):
             try:
                 # Try using 'call' instead of 'invoke'
-                response = st.session_state['retrieval_chain'].call({"input": query})
+                response = st.session_state['retrieval_chain'].run(query})
                 
                 # Debug the response
                 st.write("Response type:", type(response))
