@@ -175,27 +175,30 @@ if st.button("Get Answer") and query:
     if st.session_state['retrieval_chain']:
         with st.spinner("Generating response..."):
             try:
-                # Invoke the retrieval chain without unpacking
+                # Get the response without any unpacking
                 response = st.session_state['retrieval_chain'].invoke({"input": query})
-
-                # Output the raw response for debugging
+                
+                # Print response type and structure
+                st.write("Response type:", type(response))
                 st.write("Raw response:")
                 st.write(response)
-
-                # Now, check if the response can be unpacked or handled
+                
+                # Handle the response based on its structure
                 if isinstance(response, tuple) or isinstance(response, list):
-                    # Adjust based on the actual number of expected values
-                    st.write("Response has multiple values.")
+                    st.write(f"Response is a tuple/list with {len(response)} items.")
                     for i, res in enumerate(response):
                         st.write(f"Value {i}: {res}")
-                elif isinstance(response, dict) and 'answer' in response:
-                    st.write("Response:")
-                    st.write(response['answer'])
+                elif isinstance(response, dict):
+                    st.write("Response is a dictionary.")
+                    if 'answer' in response:
+                        st.write("Answer:")
+                        st.write(response['answer'])
+                    else:
+                        st.write("Unexpected dictionary keys:", response.keys())
                 else:
-                    st.write("Unexpected response format:", type(response))
+                    st.write(f"Unexpected response format: {type(response)}")
 
             except Exception as e:
                 st.write(f"Error during response generation: {e}")
     else:
         st.write("Please load and process documents first.")
-
