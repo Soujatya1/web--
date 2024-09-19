@@ -61,16 +61,15 @@ if st.button("Load and Process"):
 
                     for doc in docs:
                         doc.metadata["source"] = url
-
-	  	    st.session_state['loaded_docs'].extend(docs)	
-                    st.write("Successfully loaded document")
+		    st.session_state['loaded_docs'].extend(docs)
+		    st.write("Successfully loaded document") 
                 except Exception as e:
                     st.write(f"Error loading {url}: {e}")
 
         except Exception as e:
             st.write(f"Error processing sitemap {sitemap_url}: {e}")
     
-    st.write(f"Loaded documents: {len(st.session_state['loaded_docs'])}")
+    st.write(f"Loaded documents: {len(loaded_docs)}")
     
     # LLM
     if api_key:
