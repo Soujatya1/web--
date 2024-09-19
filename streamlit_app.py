@@ -175,29 +175,20 @@ if st.button("Get Answer") and query:
     if st.session_state['retrieval_chain']:
         with st.spinner("Generating response..."):
             try:
-                # Get the response without any unpacking
-                response = st.session_state['retrieval_chain'].invoke({"input": query})
+                # Try using 'call' instead of 'invoke'
+                response = st.session_state['retrieval_chain'].call({"input": query})
                 
-                # Print response type and structure
+                # Debug the response
                 st.write("Response type:", type(response))
                 st.write("Raw response:")
                 st.write(response)
                 
-                # Handle the response based on its structure
-                if isinstance(response, tuple) or isinstance(response, list):
-                    st.write(f"Response is a tuple/list with {len(response)} items.")
-                    for i, res in enumerate(response):
-                        st.write(f"Value {i}: {res}")
-                elif isinstance(response, dict):
-                    st.write("Response is a dictionary.")
-                    if 'answer' in response:
-                        st.write("Answer:")
-                        st.write(response['answer'])
-                    else:
-                        st.write("Unexpected dictionary keys:", response.keys())
+                # Handle response accordingly
+                if isinstance(response, dict) and 'answer' in response:
+                    st.write("Answer:")
+                    st.write(response['answer'])
                 else:
-                    st.write(f"Unexpected response format: {type(response)}")
-
+                    st.write("Unexpected response format.")
             except Exception as e:
                 st.write(f"Error during response generation: {e}")
     else:
