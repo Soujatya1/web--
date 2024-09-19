@@ -145,7 +145,7 @@ if st.button("Load and Process"):
         nlist = 100 # Number of clusters for IVF
 
         quantizer = faiss.IndexFlatL2(dimension)
-        ivf_index = faiss.IndexIVFFlat(quantizer, dimension, nlist)
+        ivf_index = faiss.IndexFlatL2(quantizer, dimension, nlist = 1)
 
         vectors_np = np.array(vectors)
 
