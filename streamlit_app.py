@@ -157,7 +157,7 @@ if st.button("Load and Process"):
         ivf_index.add(vectors_np)
 
         # Store in FAISS vector database
-        st.session_state['vector_db'] = FAISS(document_chunks, hf_embedding, index=quantizer)
+        st.session_state['vector_db'] = FAISS(document_chunks, hf_embedding)
 
         # Stuff Document Chain Creation
         document_chain = create_stuff_documents_chain(llm, prompt)
