@@ -121,7 +121,7 @@ if st.button("Load and Process"):
 
             # Create FAISS vector store from the document chunks and embedding function
             embeddings_array = np.array(embeddings)
-            faiss_index = FAISS(dimension)
+            faiss_index = FAISS(embeddings_array.shape[1])
             faiss_index.add(embeddings_array)
             st.session_state['vector_db'] = faiss_index
 
