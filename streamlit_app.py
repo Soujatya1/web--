@@ -132,7 +132,7 @@ if st.button("Load and Process"):
             index_to_doctore_id = {i: i for i in range(len(document_chunks))}
 
             #Initialize FAISS vector store
-            st.session_state['vector_db'] = FAISS(index = faiss_index.index, docstore = docstore, index_to_doctore_id = index_to_doctore_id)
+            st.session_state['vector_db'] = FAISS(index = faiss_index, docstore = docstore, index_to_doctore_id = index_to_doctore_id)
 
             # Stuff Document Chain Creation
             document_chain = create_stuff_documents_chain(llm, prompt)
