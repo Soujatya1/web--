@@ -117,7 +117,7 @@ if st.button("Load and Process"):
             st.write(f"Number of chunks: {len(document_chunks)}")
 
             texts = [doc.page_content for doc in document_chunks]
-            embeddings = hf_embeddings.embed_documents(texts)
+            embeddings = hf_embedding.embed_documents(texts)
 
             # Create FAISS vector store from the document chunks and embedding function
             embeddings_array = np.array(embeddings)
