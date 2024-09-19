@@ -101,7 +101,7 @@ if st.button("Load and Process"):
         
         # Text Splitting
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1500,
+            chunk_size=700,
             chunk_overlap=200,
             length_function=len,
         )
