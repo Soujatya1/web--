@@ -176,7 +176,7 @@ if st.button("Get Answer") and query:
     if st.session_state['retrieval_chain']:
         with st.spinner("Generating response..."):
             try:
-                response = st.session_state['retrieval_chain'].bind({"input": query})
+                response = st.session_state['retrieval_chain'].invoke({"input": query})
                 st.write("Response:")
                 st.write(response)
             except Exception as e:
