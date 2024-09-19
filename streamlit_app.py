@@ -172,14 +172,10 @@ if st.button("Load and Process"):
 # Query Section
 query = st.text_input("Enter your query:")
 if st.button("Get Answer") and query:
-    if retrieval_chain:
+    if st.session_state['retrieval_chain']:
         with st.spinner("Generating response..."):
-            try:
-                response = retrieval_chain.invoke({"input": query})
-                st.write("Response:")
-                st.write(response)
-            except Exception as e:
-                st.write(f"Error during response generation: {e}")
-
+            response = st.session_state['retrieval_chain'].invoke({"input": query})
+            st.write("Response:")
+            st.write(response['answer'])
     else:
         st.write("Please load and process documents first.")
