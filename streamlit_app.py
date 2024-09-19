@@ -129,10 +129,10 @@ if st.button("Load and Process"):
 
             #Create a document store and index-to-docstore ID mapping
             docstore = {i: doc.metadata["source"] for i, doc in enumerate(document_chunks)}
-            index_to_doctore_id = {i: i for i in range(len(document_chunks))}
+            index_to_docstore_id = {i: i for i in range(len(document_chunks))}
 
             #Initialize FAISS vector store
-            st.session_state['vector_db'] = FAISS(index = faiss_index, docstore = docstore, index_to_doctore_id = index_to_doctore_id)
+            st.session_state['vector_db'] = FAISS(index = faiss_index, docstore = docstore, index_to_docstore_id = index_to_docstore_id)
 
             # Stuff Document Chain Creation
             document_chain = create_stuff_documents_chain(llm, prompt)
