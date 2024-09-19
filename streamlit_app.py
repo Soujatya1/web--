@@ -10,7 +10,6 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
 from langchain.document_loaders import WebBaseLoader
-from sentence_transformers import SentenceTransformer
 import requests
 from bs4 import BeautifulSoup
 
@@ -75,7 +74,7 @@ if st.button("Load and Process"):
     # LLM and Embeddings Initialization
     if api_key:
         llm = ChatGroq(groq_api_key=api_key, model_name='llama-3.1-70b-versatile', temperature=0.2, top_p=0.2)
-        hf_embedding = SentenceTransformer("sentence-transformers/paraphrase-MiniLM-L6-v2")
+        hf_embedding = HuggingFaceEmbeddings(model_name = "sentence-transformers/all-MiniLM-L6-v2")
 
         # Craft ChatPrompt Template
         prompt = ChatPromptTemplate.from_template(
