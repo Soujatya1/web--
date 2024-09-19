@@ -127,7 +127,7 @@ if st.button("Load and Process"):
         else:
             # Parallel embedding with batching
             def embed_chunk(chunk):
-                return hf_embedding.embed_documents(chunk)
+                return hf_embedding.embed_documents([c['page_content'] for c in chunk])
             
             vectors = Parallel(n_jobs=-1)(delayed(embed_chunk)(document_chunks[i:i + batch_size]) 
                                           for i in range(0, len(document_chunks), batch_size))
