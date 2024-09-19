@@ -118,8 +118,13 @@ if st.button("Load and Process"):
             st.write(f"Number of chunks: {len(document_chunks)}")
 
             texts = [doc.page_content for doc in document_chunks]
-            embeddings = hf_embedding.aembed_documents(texts)
-
+            st.write(f"Text samples for embedding: {texts[:2]}")
+            try:
+                embeddings = hf_embedding.aembed_documents(texts)
+                st.write(f"Generated embeddings: {embeddings}")
+            except Exception as e:
+                st.write(f"Error generating embeddings: {e}")
+                
             # Create FAISS vector store from the document chunks and embedding function
             try:
                 embeddings_array = np.array(embeddings)
