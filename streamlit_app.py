@@ -175,24 +175,27 @@ if st.button("Get Answer") and query:
     if st.session_state['retrieval_chain']:
         with st.spinner("Generating response..."):
             try:
-                # Invoke the retrieval chain
+                # Invoke the retrieval chain without unpacking
                 response = st.session_state['retrieval_chain'].invoke({"input": query})
-                
-                # First, print or display the raw response for debugging
+
+                # Output the raw response for debugging
                 st.write("Raw response:")
                 st.write(response)
 
-                # Now, check the structure of the response to unpack it correctly
-                if isinstance(response, dict):
-                    if 'answer' in response:
-                        st.write("Response:")
-                        st.write(response['answer'])
-                    else:
-                        st.write("Error: 'answer' key not found in the response.")
+                # Now, check if the response can be unpacked or handled
+                if isinstance(response, tuple) or isinstance(response, list):
+                    # Adjust based on the actual number of expected values
+                    st.write("Response has multiple values.")
+                    for i, res in enumerate(response):
+                        st.write(f"Value {i}: {res}")
+                elif isinstance(response, dict) and 'answer' in response:
+                    st.write("Response:")
+                    st.write(response['answer'])
                 else:
-                    st.write("Unexpected response type:", type(response))
+                    st.write("Unexpected response format:", type(response))
 
             except Exception as e:
                 st.write(f"Error during response generation: {e}")
     else:
         st.write("Please load and process documents first.")
+
