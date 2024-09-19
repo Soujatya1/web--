@@ -3,7 +3,7 @@ from langchain.document_loaders.sitemap import SitemapLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains import RetrievalQA
 from langchain_groq import ChatGroq
-from langchain_huggingface.HugggingFaceEmbeddings import HuggingFaceEmbeddings
+from langchain_huggingface.HuggingFaceEmbeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains.combine_documents import create_stuff_documents_chain
