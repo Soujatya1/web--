@@ -158,6 +158,7 @@ if st.button("Load and Process"):
 
 # Query Section
 query = st.text_input("Enter your query:")
+
 if st.button("Get Answer") and query:
     if st.session_state['retrieval_chain']:
         with st.spinner("Generating response..."):
