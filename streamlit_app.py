@@ -15,6 +15,7 @@ import pickle
 import os
 from joblib import Parallel, delayed
 import numpy as np
+import faiss
 
 # Initialize session state variables to persist data across reruns
 if 'loaded_docs' not in st.session_state:
@@ -149,12 +150,14 @@ if st.button("Load and Process"):
 
         vectors_np = np.array(vectors)
 
+        quantizer.add(vectors_np)
+
         # Train and add vectors to FAISS
         ivf_index.train(vectors_np)
         ivf_index.add(vectors_np)
 
         # Store in FAISS vector database
-        st.session_state['vector_db'] = FAISS(hf_embedding, index=ivf_index)
+        st.session_state['vector_db'] = FAISS(hf_embedding, index=ivf_index, documents = document_chunks)
 
         # Stuff Document Chain Creation
         document_chain = create_stuff_documents_chain(llm, prompt)
