@@ -116,10 +116,13 @@ if st.button("Load and Process"):
             document_chunks = text_splitter.split_documents(st.session_state['loaded_docs'])
             st.write(f"Number of chunks: {len(document_chunks)}")
 
+            texts = [doc.page_content for doc in document_chunks]
+            embeddings = hf_embeddings.embed_documents(texts)
+
             # Create FAISS vector store from the document chunks and embedding function
-            hf_embeddings = np.array([hf_embedding.embed(doc.page_content) for doc in document_chunks])
-            faiss_index = FAISS(hf_embeddings.shape[1])
-            faiss_index.add(hf_embeddings)
+            embeddings_array = np.array(embeddings)
+            faiss_index = FAISS(dimension)
+            faiss_index.add(embeddings_array)
             st.session_state['vector_db'] = faiss_index
 
             # Stuff Document Chain Creation
