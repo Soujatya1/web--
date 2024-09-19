@@ -14,6 +14,14 @@ from langchain.document_loaders import PyPDFLoader
 import requests
 from bs4 import BeautifulSoup
 
+#Initialize session states variables
+if 'loaded_docs' not in st.session_state:
+    st.session_state['loaded_docs'] = []
+if 'vector_db' not in st.session_state:
+    st.session_state['vector_db'] = None
+if 'retrieval_chain' not in st.session_state:
+    st.session_state['retrieval_chain'] = None
+
 # Streamlit UI
 st.title("Website Intelligence")
 
@@ -54,7 +62,7 @@ if st.button("Load and Process"):
                     for doc in docs:
                         doc.metadata["source"] = url
 
-                    loaded_docs.extend(docs)
+	  st.session_state['loaded_docs'].extend(docs)	
                     st.write("Successfully loaded document")
                 except Exception as e:
                     st.write(f"Error loading {url}: {e}")
@@ -104,21 +112,21 @@ if st.button("Load and Process"):
         st.write(f"Number of chunks: {len(document_chunks)}")
 
         # Vector database storage
-        vector_db = FAISS.from_documents(document_chunks, hf_embedding)
+        st.session_state['vector_db'] = FAISS.from_documents(document_chunks, hf_embedding)
 
         # Stuff Document Chain Creation
         document_chain = create_stuff_documents_chain(llm, prompt)
 
         # Retriever from Vector store
-        retriever = vector_db.as_retriever()
+        retriever = st.session_state['vector_db'].as_retriever()
 
         # Create a retrieval chain
-        retrieval_chain = create_retrieval_chain(retriever, document_chain)
+        st.session_state['retrieval_chain'] = create_retrieval_chain(retriever, document_chain)
 
         # Query
         query = st.text_input("Enter your query:")
-        if st.button("Get Answer"):
-            if query:
-                response = retrieval_chain.invoke({"input": query})
+        if st.button("Get Answer") and query:
+            if st.session_state['retrieval_chain']:
+                response = st.session_state['retrieval_chain'].invoke({"input": query})
                 st.write("Response:")
                 st.write(response['answer'])
