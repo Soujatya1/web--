@@ -142,10 +142,10 @@ if st.button("Load and Process"):
         # Initialize FAISS index with IVF
         import faiss
         dimension = len(vectors[0]) # Dimensionality of embeddings
-        nlist = 100 # Number of clusters for IVF
+        nlist = 1 # Number of clusters for IVF
 
         quantizer = faiss.IndexFlatL2(dimension)
-        ivf_index = faiss.IndexFlatL2(quantizer, dimension, nlist = 1)
+        ivf_index = faiss.IndexIVFFlat(quantizer, dimension, nlist)
 
         vectors_np = np.array(vectors)
 
