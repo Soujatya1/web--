@@ -121,9 +121,16 @@ if st.button("Load and Process"):
 
             # Create FAISS vector store from the document chunks and embedding function
             embeddings_array = np.array(embeddings)
-            faiss_index = FAISS(embeddings_array.shape[1])
+            faiss_index = FAISS(dimension)
             faiss_index.add(embeddings_array)
             st.session_state['vector_db'] = faiss_index
+
+            #Create a document store and index-to-docstore ID mapping
+            docstore = {i: doc.metadata["source"] for i, doc in enumerate(document_chunks)}
+            index_to_doctore_id = {i: i for i in range(len(document_chunks)}
+
+            #Initialize FAISS vector store
+            st.session_state['vector_db'] = FAISS(index = faiss_index.index, docstore = docstore, index_to_doctore_id = index_to_doctore_id)
 
             # Stuff Document Chain Creation
             document_chain = create_stuff_documents_chain(llm, prompt)
