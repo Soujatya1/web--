@@ -157,10 +157,9 @@ if st.button("Load and Process"):
                     st.write("Embeddings not in 2D or unexpected shape")
 
 # Query Section
-    query = st.text_input("Enter your query:")
-
+query = st.text_input("Enter your query:")
 if st.button("Get Answer") and query:
-    if st.session_state['retrieval_chain']:
+    if st.session_state('retrieval_chain'):
         with st.spinner("Generating response..."):
             response = st.session_state['retrieval_chain'].invoke({"input": query})
             st.write("Response:")
