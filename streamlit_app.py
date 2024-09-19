@@ -118,7 +118,7 @@ if st.button("Load and Process"):
             st.write(f"Number of chunks: {len(document_chunks)}")
 
             texts = [doc.page_content for doc in document_chunks]
-            embeddings = hf_embedding.embed(texts)
+            embeddings = hf_embedding.aembed_documents(texts)
 
             # Create FAISS vector store from the document chunks and embedding function
             embeddings_array = np.array(embeddings)
@@ -131,7 +131,7 @@ if st.button("Load and Process"):
             docstore = {i: doc.metadata["source"] for i, doc in enumerate(document_chunks)}
             index_to_docstore_id = {i: i for i in range(len(document_chunks))}
             def embedding_function(texts):
-                return np.array(hf_embedding.embed(texts))
+                return np.array(hf_embedding.aembed_documents(texts))
 
             #Initialize FAISS vector store
             st.session_state['vector_db'] = FAISS(index = faiss_index, docstore = docstore, index_to_docstore_id = index_to_docstore_id, embedding_function = embedding_function)
