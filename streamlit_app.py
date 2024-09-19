@@ -105,7 +105,14 @@ if st.button("Load and Process"):
             length_function=len,
         )
 
-        document_chunks = text_splitter.split_documents(st.session_state['loaded_docs'])
+        documents = st.session_state['loaded_docs']
+        document_chunks = []
+        for doc in documents:
+            split_texts = text_splitter.split_text(doc.page_content)
+            for split_text in split_texts:
+                document_chunks.append({"page_content": split_text, "metadata": doc.metadata})
+
+        #document_chunks = text_splitter.split_documents(st.session_state['loaded_docs'])
         st.write(f"Number of chunks: {len(document_chunks)}")
 
         # Embedding and Vector Database Storage
