@@ -175,12 +175,9 @@ if st.button("Get Answer") and query:
     if st.session_state['retrieval_chain']:
         with st.spinner("Generating response..."):
             try:
-                # DEBUG: Print available methods to understand the correct method
-                st.write(dir(st.session_state['retrieval_chain']))
+                # Attempting to apply the input to the chain
+                response = st.session_state['retrieval_chain'].apply({"input": query})
 
-                # Temporary: Try using __call__ method or invoke
-                response = st.session_state['retrieval_chain']({"input": query})  # Attempting to pass it directly
-                
                 st.write("Response:")
                 st.write(response)
             except Exception as e:
