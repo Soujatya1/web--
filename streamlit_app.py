@@ -6,8 +6,8 @@ from langchain_groq import ChatGroq
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_chains.combine_documents import create_stuff_documents_chain
-from langchain_chains import create_retrieval_chain
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.chains import create_retrieval_chain
 from langchain.document_loaders import WebBaseLoader
 import requests
 from bs4 import BeautifulSoup
