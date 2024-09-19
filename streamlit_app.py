@@ -58,10 +58,10 @@ def load_documents(urls):
     docs = []
     for url in urls:
         try:
-            st.write(f"Loading URL: {url}")
+            #st.write(f"Loading URL: {url}")
             loader = WebBaseLoader(url)
             docs.extend(loader.load())
-            st.write("Successfully loaded document")
+            #st.write("Successfully loaded document")
         except Exception as e:
             st.write(f"Error loading {url}: {e}")
     return docs
@@ -116,20 +116,20 @@ if st.button("Load and Process"):
             )
 
             document_chunks = text_splitter.split_documents(st.session_state['loaded_docs'])
-            st.write(f"Number of chunks: {len(document_chunks)}")
+            #st.write(f"Number of chunks: {len(document_chunks)}")
 
             texts = [doc.page_content for doc in document_chunks]
-            st.write(f"Text samples for embedding: {texts[:2]}")
+            #st.write(f"Text samples for embedding: {texts[:2]}")
             try:
                 embeddings = hf_embedding.embed_documents(texts)
-                st.write(f"Generated embeddings: {embeddings}")
+                #st.write(f"Generated embeddings: {embeddings}")
             except Exception as e:
                 st.write(f"Error generating embeddings: {e}")
                 
             # Create FAISS vector store from the document chunks and embedding function
             try:
                 embeddings_array = np.array(embeddings)
-                st.write(f"Embeddings array shape: {embeddings_array.shape}")
+                #st.write(f"Embeddings array shape: {embeddings_array.shape}")
                 if len(embeddings_array.shape) == 0:
                     st.write("Array not valid")
                     
@@ -142,7 +142,7 @@ if st.button("Load and Process"):
                     faiss_index = faiss.IndexFlatL2(dimension)
                     faiss_index.add(embeddings_array)
                     st.session_state['vector_db'] = faiss_index
-                    st.write("Vector DB created")
+                    #st.write("Vector DB created")
 
                 #Create a document store and index-to-docstore ID mapping
                     docstore = {i: doc.metadata["source"] for i, doc in enumerate(document_chunks)}
