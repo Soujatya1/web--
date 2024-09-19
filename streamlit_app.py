@@ -123,6 +123,7 @@ if st.button("Load and Process"):
             # Create FAISS vector store from the document chunks and embedding function
             try:
                 embeddings_array = np.array(embeddings)
+                st.write("Generated embeddings")
                 if len(embeddings_array.shape) == 0:
                     st.write("Array not valid")
                     
@@ -158,6 +159,17 @@ if st.button("Load and Process"):
                     st.write("Embeddings not in 2D or unexpected shape")
             except Exception as e:
                 st.write("Error processing embeddings")
+                st.write(f"Generated {len(embeddings)} embeddings")
+if st.session_state['vector_db'] is not None:
+    st.write("Vector DB successfully created")
+else:
+    st.write("Error creating Vector DB")
+
+if st.session_state['retrieval_chain'] is not None:
+    st.write("Retrieval chain successfully created")
+else:
+    st.write("Failed to create retrieval chain")
+
 # Query Section
 query = st.text_input("Enter your query:")
 if st.button("Get Answer") and query:
