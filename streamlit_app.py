@@ -167,12 +167,10 @@ if st.button("Load and Process"):
             except Exception as e:
                 st.write("Error processing embeddings")
 
-st.write(type(st.session_state['retrieval_chain']))
-
+#st.write(type(st.session_state['retrieval_chain']))
 
 # Query Section
 query = st.text_input("Enter your query:")
-st.session_state['retrieval_chain'] = retrieval_chain
 if st.button("Get Answer") and query:
     if retrieval_chain:
         with st.spinner("Generating response..."):
