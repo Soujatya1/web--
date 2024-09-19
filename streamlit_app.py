@@ -121,7 +121,7 @@ if st.button("Load and Process"):
             texts = [doc.page_content for doc in document_chunks]
             st.write(f"Text samples for embedding: {texts[:2]}")
             try:
-                embeddings = hf_embedding.aembed_documents(texts)
+                embeddings = hf_embedding.embed_documents(texts)
                 st.write(f"Generated embeddings: {embeddings}")
             except Exception as e:
                 st.write(f"Error generating embeddings: {e}")
@@ -148,7 +148,7 @@ if st.button("Load and Process"):
                     docstore = {i: doc.metadata["source"] for i, doc in enumerate(document_chunks)}
                     index_to_docstore_id = {i: i for i in range(len(document_chunks))}
                     def embedding_function(texts):
-                        return np.array(hf_embedding.aembed_documents(texts))
+                        return np.array(hf_embedding.embed_documents(texts))
 
             #Initialize FAISS vector store
                     st.session_state['vector_db'] = FAISS(index = faiss_index, docstore = docstore, index_to_docstore_id = index_to_docstore_id, embedding_function = embedding_function)
