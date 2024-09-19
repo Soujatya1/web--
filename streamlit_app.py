@@ -5,16 +5,15 @@ from langchain.chains import RetrievalQA
 from langchain_groq import ChatGroq
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain.chains import RetrievalQA
+from langchain_chains import RetrievalQA
 from langchain_core.prompts import ChatPromptTemplate
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain.chains import create_retrieval_chain
+from langchain_chains.combine_documents import create_stuff_documents_chain
+from langchain_chains import create_retrieval_chain
 from langchain.document_loaders import WebBaseLoader
-from langchain.document_loaders import PyPDFLoader
 import requests
 from bs4 import BeautifulSoup
 
-#Initialize session states variables
+# Initialize session state variables
 if 'loaded_docs' not in st.session_state:
     st.session_state['loaded_docs'] = []
 if 'vector_db' not in st.session_state:
@@ -23,7 +22,7 @@ if 'retrieval_chain' not in st.session_state:
     st.session_state['retrieval_chain'] = None
 
 # Streamlit UI
-st.title("Website Intelligence")
+st.title("Knowledge Management Chatbot")
 
 api_key = "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"
 
@@ -36,7 +35,7 @@ if st.button("Load and Process"):
     
     all_urls = []
     filtered_urls = []
-    loaded_docs = []
+    st.session_state['loaded_docs'] = []
     
     for sitemap_url in sitemap_urls:
         try:
@@ -61,20 +60,20 @@ if st.button("Load and Process"):
 
                     for doc in docs:
                         doc.metadata["source"] = url
-		    st.session_state['loaded_docs'].extend(docs)	
+
+                    st.session_state['loaded_docs'].extend(docs)
                     st.write("Successfully loaded document")
                 except Exception as e:
                     st.write(f"Error loading {url}: {e}")
+
         except Exception as e:
             st.write(f"Error processing sitemap {sitemap_url}: {e}")
     
-    st.write(f"Loaded documents: {len(loaded_docs)}")
+    st.write(f"Loaded documents: {len(st.session_state['loaded_docs'])}")
     
-    # LLM
+    # LLM and Embeddings Initialization
     if api_key:
-        llm = ChatGroq(groq_api_key="api_key", model_name='llama-3.1-70b-versatile', temperature=0.2, top_p=0.2)
-
-        # Embedding
+        llm = ChatGroq(groq_api_key=api_key, model_name='llama-3.1-70b-versatile', temperature=0.2, top_p=0.2)
         hf_embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
 
         # Craft ChatPrompt Template
@@ -90,8 +89,6 @@ if st.button("Load and Process"):
 
             Generate tabular data wherever required to classify the difference between different parameters of policies.
 
-            I will tip you with a $1000 if the answer provided is helpful.
-
             <context>
             {context}
             </context>
@@ -106,7 +103,7 @@ if st.button("Load and Process"):
             length_function=len,
         )
 
-        document_chunks = text_splitter.split_documents(loaded_docs)
+        document_chunks = text_splitter.split_documents(st.session_state['loaded_docs'])
         st.write(f"Number of chunks: {len(document_chunks)}")
 
         # Vector database storage
@@ -121,10 +118,12 @@ if st.button("Load and Process"):
         # Create a retrieval chain
         st.session_state['retrieval_chain'] = create_retrieval_chain(retriever, document_chain)
 
-        # Query
-        query = st.text_input("Enter your query:")
-        if st.button("Get Answer") and query:
-            if st.session_state['retrieval_chain']:
-                response = st.session_state['retrieval_chain'].invoke({"input": query})
-                st.write("Response:")
-                st.write(response['answer'])
+# Query Section
+query = st.text_input("Enter your query:")
+if st.button("Get Answer") and query:
+    if st.session_state['retrieval_chain']:
+        response = st.session_state['retrieval_chain'].invoke({"input": query})
+        st.write("Response:")
+        st.write(response['answer'])
+    else:
+        st.write("Please load and process documents first.")
