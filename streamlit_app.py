@@ -160,7 +160,7 @@ if st.button("Load and Process"):
                     retriever = st.session_state['vector_db'].as_retriever()
 
             # Create a retrieval chain
-                    retrieval_chain = create_retrieval_chain(retriever, document_chain)
+                    st.session_state['retrieval_chain'] = create_retrieval_chain(retriever, document_chain)
                     #st.write("Retrieval chain successfully created")
                 else:
                     st.write("Embeddings not in 2D or unexpected shape")
@@ -172,6 +172,7 @@ st.write(type(st.session_state['retrieval_chain']))
 
 # Query Section
 query = st.text_input("Enter your query:")
+st.session_state['retrieval_chain'] = retrieval_chain
 if st.button("Get Answer") and query:
     if retrieval_chain:
         with st.spinner("Generating response..."):
