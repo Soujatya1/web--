@@ -169,20 +169,29 @@ if st.button("Load and Process"):
 
 
 
+# Query Section
 query = st.text_input("Enter your query:")
 if st.button("Get Answer") and query:
     if st.session_state['retrieval_chain']:
         with st.spinner("Generating response..."):
             try:
-                # Adjusting invocation to unpack based on expected return type
+                # Invoke the retrieval chain
                 response = st.session_state['retrieval_chain'].invoke({"input": query})
                 
-                # Check if the response is a dictionary and retrieve the answer
-                if isinstance(response, dict) and 'answer' in response:
-                    st.write("Response:")
-                    st.write(response['answer'])
+                # First, print or display the raw response for debugging
+                st.write("Raw response:")
+                st.write(response)
+
+                # Now, check the structure of the response to unpack it correctly
+                if isinstance(response, dict):
+                    if 'answer' in response:
+                        st.write("Response:")
+                        st.write(response['answer'])
+                    else:
+                        st.write("Error: 'answer' key not found in the response.")
                 else:
-                    st.write("Unexpected response format:", response)
+                    st.write("Unexpected response type:", type(response))
+
             except Exception as e:
                 st.write(f"Error during response generation: {e}")
     else:
