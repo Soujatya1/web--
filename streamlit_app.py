@@ -17,7 +17,7 @@ from bs4 import BeautifulSoup
 # Streamlit UI
 st.title("Website Intelligence")
 
-api_key = st.text_input("Enter your Groq API key:")
+api_key = "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"
 
 sitemap_urls_input = st.text_area("Enter sitemap URLs (one per line):")
 filter_words_input = st.text_area("Enter filter words (one per line):")
