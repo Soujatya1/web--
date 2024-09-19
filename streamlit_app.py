@@ -153,6 +153,7 @@ if st.button("Load and Process"):
 
             # Create a retrieval chain
                     st.session_state['retrieval_chain'] = create_retrieval_chain(retriever, document_chain)
+                    st.write("R chain successfully created")
                 else:
                     st.write("Embeddings not in 2D or unexpected shape")
             except Exception as e:
