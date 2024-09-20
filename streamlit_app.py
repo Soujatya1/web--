@@ -82,18 +82,18 @@ if st.button("Load and Process"):
            You are a Life Insurance specialist who needs to answer queries based on the information provided in the websites only. Please follow all the websites, and answer as per the same.
  
            Do not answer anything except from the website information which has been entered. Please do not skip any information from the tabular data in the website.
+
+           The websites contain information about multiple policies. Your task is to extract relevant features from the given websites and provide a clear comparison.
  
            Do not skip any information from the context. Answer appropriately as per the query asked.
  
-           Now, being an excellent Life Insurance agent, you need to compare your policies against the other company's policies in the websites, if asked.
- 
-           Generate tabular data wherever required to classify the difference between different parameters of policies.
+           Based on the information above, compare the policies across websites, focusing on key features like premiums, coverage, riders, etc. Structure your comparison clearly in a tabular format if needed.
  
           <context>
-           {context}
+          {context}
           </context>
  
-           Question: {input}"""
+          Question: {input}"""
        )
       
        # Text Splitting
