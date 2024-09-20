@@ -35,7 +35,7 @@ if st.button("Load and Process"):
   
    all_urls = []
    filtered_urls = []
-  st.session_state['loaded_docs'] = []
+   st.session_state['loaded_docs'] = []
   
    for sitemap_url in sitemap_urls:
        try:
