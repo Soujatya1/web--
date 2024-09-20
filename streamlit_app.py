@@ -121,9 +121,29 @@ if st.button("Load and Process"):
 # Query Section
 query = st.text_input("Enter your query:")
 if st.button("Get Answer") and query:
-   if st.session_state['retrieval_chain']:
-       response = st.session_state['retrieval_chain'].invoke({"input": query})
-       st.write("Response:")
-       st.write(response['answer'])
-   else:
-       st.write("Please load and process documents first.")
+    if st.session_state['retrieval_chain']:
+        # Modify the retriever to return documents from multiple sources (websites)
+        retrieved_docs = retriever.get_relevant_documents(query)
+
+        # Group by source (or other metadata) to ensure multi-site comparison
+        grouped_docs = {}
+        for doc in retrieved_docs:
+            source = doc.metadata.get("source", "unknown")
+            if source not in grouped_docs:
+                grouped_docs[source] = []
+            grouped_docs[source].append(doc)
+
+        # Combine all documents from different sources and pass to the model
+        combined_context = ""
+        for source, docs in grouped_docs.items():
+            combined_context += f"Documents from {source}:\n"
+            for doc in docs:
+                combined_context += doc.page_content + "\n"
+
+        # Pass the combined context to the retrieval chain
+        response = st.session_state['retrieval_chain'].invoke({"input": query, "context": combined_context})
+        
+        st.write("Response:")
+        st.write(response['answer'])
+    else:
+        st.write("Please load and process documents first.")
