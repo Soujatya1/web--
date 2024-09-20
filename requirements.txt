@@ -8,5 +8,3 @@ sentence_transformers
 beautifulsoup4
 requests
 lxml
-numpy
-langchain_huggingface
