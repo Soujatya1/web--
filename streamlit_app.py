@@ -73,7 +73,7 @@ if st.button("Load and Process"):
   
    # LLM and Embeddings Initialization
    if api_key:
-       llm = ChatGroq(groq_api_key=api_key, model_name='llama-3.1-70b-versatile', temperature=0.2, top_p=0.2)
+       llm = ChatGroq(groq_api_key=api_key, model_name='meta-llama/llama-4-maverick-17b-128e-instruct', temperature=0.2, top_p=0.2)
        hf_embedding = HuggingFaceEmbeddings(model_name = "sentence-transformers/all-MiniLM-L6-v2")
  
        # Craft ChatPrompt Template
